@@ -1,15 +1,4 @@
-geometry.tar - C++ classes for Point and Vector
+The core algorithm was taken from here:
 
-Contains:
-	* files with class definitions and methods, 
-		> point.h - Point class declaration
-		> point.c - Point class methods
-		> vector.h - Vector class declaration
-		> vector.c - Vector class methods
-	* test program src code:
-		> ptest.c - test Point class
-		> vtest.c - test Vector class
-	* Makefile to build:
-		> library "geometry.a"
-		> the test programs
+http://www.softsurfer.com/Archive/algorithm_0205/algorithm_0205.htm
 
