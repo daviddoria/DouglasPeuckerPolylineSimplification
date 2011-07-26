@@ -63,3 +63,18 @@ void WritePointsAsPolyDataLine(const std::vector<Point>& inputPoints, const std:
   writer->SetInputConnection(linesPolyData->GetProducerPort());
   writer->Write();
 }
+
+void PointsToPolyLineParametricPath(const std::vector<Point>& points, itk::PolyLineParametricPath< 2 >::Pointer path)
+{
+  path->Initialize();
+  typedef itk::PolyLineParametricPath< 2 >::ContinuousIndexType    ContinuousIndexType;
+  
+  for(unsigned int i = 0; i < points.size(); ++i)
+    {
+    ContinuousIndexType cindex;
+    cindex[0] = points[i].x;
+    cindex[1] = points[i].y;
+    
+    path->AddVertex( cindex );
+    }  
+}

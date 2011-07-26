@@ -1,0 +1,13 @@
+\BOOKMARK [1][]{section.1}{Introduction}{}
+\BOOKMARK [1][]{section.2}{Algorithm}{}
+\BOOKMARK [2][]{subsection.2.1}{Vertex Reduction}{section.2}
+\BOOKMARK [2][]{subsection.2.2}{Douglas-Peucker Simplification}{section.2}
+\BOOKMARK [1][]{section.3}{Input and Output Types}{}
+\BOOKMARK [2][]{subsection.3.1}{VTK Conversions}{section.3}
+\BOOKMARK [2][]{subsection.3.2}{ITK Conversions}{section.3}
+\BOOKMARK [2][]{subsection.3.3}{Plain Text}{section.3}
+\BOOKMARK [1][]{section.4}{Demonstration}{}
+\BOOKMARK [1][]{section.5}{Code Snippet}{}
+\BOOKMARK [2][]{subsection.5.1}{Plain Text Files}{section.5}
+\BOOKMARK [2][]{subsection.5.2}{ITK}{section.5}
+\BOOKMARK [2][]{subsection.5.3}{VTK}{section.5}

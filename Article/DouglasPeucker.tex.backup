@@ -11,7 +11,7 @@ backref,
 colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
 ]{hyperref}
 
-\title{Douglas-Peucker Contour Simplification}
+\title{Closed Loop Simplification}
 
 % 
 % NOTE: This is the last number of the "handle" URL that 
@@ -61,10 +61,10 @@ colorlinks,linkcolor={blue},citecolor={blue},urlcolor={blue},
 \begin{abstract}
 \noindent
 
-This document presents an implementation of an algorithm to find a low edge-count approximation of a complex, discrete, 2D contour. The contour can be open or closed. This implementation provides a VTK and ITK wrapper to the implementation provided by Dan Sunday at \verb|www.softsurfer.com| (\verb|http://www.softsurfer.com/Archive/algorithm_0205/algorithm_0205.htm|).
+This document presents an implementation of an algorithm to find a low edge-count approximation of a complex, discrete, 2D contour. The contour can be open or closed. This implementation provides a VTK and ITK wrapper to the implementation provided by Dan Sunday at www.softsurfer.com (http://www.softsurfer.com/Archive/algorithm_0205/algorithm_0205.htm).
 
 The code is available here:
-\verb|https://github.com/daviddoria/DouglasPeuckerPolylineSimplification|
+https://github.com/daviddoria/DouglasPeuckerPolylineSimplification
 
 \end{abstract}
 
@@ -79,9 +79,9 @@ This document presents an implementation of an algorithm to find a low edge-coun
 \section{Algorithm}
 \label{sec:Algorithm}
 The algorithm is explained very well here:
-\verb|http://www.softsurfer.com/Archive/algorithm_0205/algorithm_0205.htm|
+http://www.softsurfer.com/Archive/algorithm_0205/algorithm_0205.htm
 
-We include excerpts below to make this document self contained. The algorithm consists of two steps, vertex reduction and then Douglas-Peucker simplification.
+We include exerpts below to make this document self contained. The algorithm consists of two steps, vertex reduction and then Douglas-Peucker simplification.
 
 \subsection{Vertex Reduction}
 ``Vertex reduction is the brute-force algorithm for polyline simplification.  For this algorithm, a polyline vertex is discarded when its distance from a prior initial vertex is less than some minimum tolerance $\epsilon > 0$.   Specifically,  after fixing an initial vertex $V_0$, successive vertices $V_i$ are tested and rejected if they are less than $\epsilon$ away from $V_0$. But, when a vertex is found that is further away than $\epsilon$, then it is accepted as part of the new simplified polyline, and it also becomes the new initial vertex for further simplification of the polyline.''
@@ -91,31 +91,8 @@ We include excerpts below to make this document self contained. The algorithm co
 
 %%%%%%%%%%%%%%%%%%%%
 \section{Input and Output Types}
-The core algorithm operates on a very simple Point class (defined in point.h). A \verb|std::vector<Point>| serves as the representation of a contour, taking the ordered points in the vector as the connectivity of the points. We provide methods to convert to and from this representation of a contour from typical VTK and ITK representations of contours.
-
-\subsection{VTK Conversions}
-The VTK representation of a contour is a set of ordered line segments in a vtkPolyData. To convert between the internal representation and the VTK representation, we provide the functions:
-
-\begin{verbatim}
-std::vector<Point> CreatePointVectorFromPolyData(vtkPolyData* polydata);
-void WritePointsAsPolyDataLine(const std::vector<Point>& points, const std::string& fileName);
-\end{verbatim}
-
-\subsection{ITK Conversions}
-The ITK representation of a contour is a \verb|itk::PolyLineParametricPath< 2 >|. To convert between the internal representation and the ITK representation, we provide the functions:
-
-\begin{verbatim}
-std::vector<Point> CreatePointVectorFromPolyLineParametricPath(itk::PolyLineParametricPath< 2 >::Pointer path);
-void PointsToPolyLineParametricPath(const std::vector<Point>& points, itk::PolyLineParametricPath< 2 >::Pointer path);
-\end{verbatim}
-
-\subsection{Plain Text}
-A representation of a contour in a simple ASCII file exactly corresponds to the internal representation of a simple list of points. To read and write this type of file, we provide the functions:
-\begin{verbatim}
-std::vector<Point> CreatePointVectorFromPointList(const std::string& fileName);
-void WritePointsAsText(const std::vector<Point>& points, const std::string& fileName);
-\end{verbatim}
-
+We provide methods to 
+itk::PolyLineParametricPath< 2 >
 
 %%%%%%%%%%%%%%%%%%%%
 \section{Demonstration}
@@ -133,49 +110,7 @@ A typical case of the simplification of a contour is shown in Figure \ref{fig:De
 %%%%%%%%%%%%%%%
 \section{Code Snippet}
 
-Compilable examples are provided as DouglasPeuckerExample.cxx, DouglasPeuckerITKExample.cxx, and DouglasPeuckerVTKExample.cxx, but short excerpts are shown below to demonstrate the simple interfaces.
-
-\subsection{Plain Text Files}
 \begin{verbatim}
-
-  std::vector<Point> points = CreatePointVectorFromPointList(inputFileName);
-  
-  // Perform the simplification
-  std::vector<Point> simplifiedPoints = SimplifyPolyline(approximationTolerance, points);
-  
-  WritePointsAsText(simplifiedPoints, outputFileName);
-\end{verbatim}
-
-\subsection{ITK}
-\begin{verbatim}
-  
-  itk::PolyLineParametricPath< 2 >::Pointer path = itk::PolyLineParametricPath< 2 >::New();
-  
-  ReadFileIntoPolyLineParametricPath(inputFileName, path);
-  std::vector<Point> points = CreatePointVectorFromPolyLineParametricPath(path);
-  
-  // Perform the simplification
-  std::vector<Point> simplifiedPoints = SimplifyPolyline(approximationTolerance, points);
-  
-  WritePointsAsText(simplifiedPoints, outputFileName);
-  
-\end{verbatim}
-
-\subsection{VTK}
-\begin{verbatim}
-  // Read the input
-  vtkSmartPointer<vtkXMLPolyDataReader> reader =
-    vtkSmartPointer<vtkXMLPolyDataReader>::New();
-  reader->SetFileName(inputFileName.c_str());
-  reader->Update();
-  
-  std::vector<Point> points = CreatePointVectorFromPolyData(reader->GetOutput());
-  
-  // Perform the simplification
-  std::vector<Point> simplifiedPoints = SimplifyPolyline(approximationTolerance, points);
-
-  // Write the output
-  WritePointsAsPolyDataLine(simplifiedPoints, outputFileName);
 
 \end{verbatim}
 
