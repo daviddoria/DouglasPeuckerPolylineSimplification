@@ -7,14 +7,16 @@ SET( INSTALL_DIR ${CMAKE_INSTALL_PREFIX} )
 # Tell CMake to also look in the source directory to find some .cmake files (Eigen3 and Umfpack)
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR} ${CMAKE_MODULE_PATH})
 
-
 PROJECT(DouglasPeucker)
 
 FIND_PACKAGE(ITK REQUIRED)
 INCLUDE(${ITK_USE_FILE})
 
-ADD_EXECUTABLE(DouglasPeucker DouglasPeucker.cxx point.cpp vector.cpp)
-TARGET_LINK_LIBRARIES(DouglasPeucker ${ITK_LIBRARIES})
+FIND_PACKAGE(VTK REQUIRED)
+INCLUDE(${VTK_USE_FILE})
+
+ADD_EXECUTABLE(DouglasPeucker DouglasPeuckerExample.cxx DouglasPeucker.cxx ContourReaders.cpp point.cpp vector.cpp)
+TARGET_LINK_LIBRARIES(DouglasPeucker ${ITK_LIBRARIES} ${VTK_LIBRARIES})
 set_target_properties(DouglasPeucker PROPERTIES COMPILE_DEFINITIONS "${DEFINITIONS}")
 INSTALL( TARGETS DouglasPeucker
   RUNTIME DESTINATION ${INSTALL_DIR} )

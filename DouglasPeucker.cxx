@@ -1,90 +1,10 @@
-//#include "common.h"
+#include "DouglasPeucker.h"
+
 #include "point.h"
 #include "vector.h"
 
-#include <vector>
 #include <fstream>
 #include <sstream>
-#include <string>
-
-int poly_simplify( float tol, Point* V, int n, Point* sV );
-
-void simplifyDP( float tol, Point* v, int j, int k, int* mk );
-
-struct Segment
-{
-  Point P0, P1;
-};
-
-// The larger the tolerance, the more reduction will take place.
-
-int main(int argc, char *argv[])
-{
-  // Verify arguments
-  if(argc < 4)
-    {
-    std::cerr << "Required: input.txt tolerance output.txt" << std::endl;
-    return -1;
-    }
-  
-  // Parse arguments
-  std::string inputFileName = argv[1];
-  
-  std::stringstream ss;
-  ss << argv[2];
-  float approximationTolerance = 0.0;
-  ss >> approximationTolerance;
-  
-  std::string outputFileName = argv[3];
-  
-  // Output arguments
-  std::cout << "Input: " << inputFileName << std::endl;
-  std::cout << "Approximation tolerance: " << approximationTolerance << std::endl;
-  std::cout << "Output: " << outputFileName << std::endl;
-  
-  // Open the input file
-  std::ifstream fin(inputFileName.c_str());
- 
-  // Quit if the input file is not valid.
-  if(fin == NULL)
-    {
-    std::cout << "Cannot open file." << std::endl;
-    return -1;
-    }
-
-  // Read the input file into a vector of points.
-  std::string line;
-  std::vector<Point> points;
-  
-  while(getline(fin, line))
-    {
-    std::stringstream ss;
-    ss << line;
-    float x,y;
-    ss >> x >> y;
-    Point p(x,y);
-    points.push_back(p);
-    }
-    
-  std::cout << "There are " << points.size() << " input points." << std::endl;
-  
-  // Perform the simplification
-  Point simplifiedPoints[points.size()]; // There will be less than this number of points in the output
-  int numberOfSimplifiedPoints = poly_simplify(approximationTolerance, &points[0], points.size(), simplifiedPoints );
-
-  std::cout << "There are " << numberOfSimplifiedPoints << " simplified points." << std::endl;
-  
-  std::ofstream fout(outputFileName.c_str());
- 
-  for(unsigned int i = 0; i < numberOfSimplifiedPoints; ++i)
-    {
-    //std::cout << simplifiedPoints[i] << std::endl;
-    fout << simplifiedPoints[i].x << " " << simplifiedPoints[i].y << std::endl;
-    }
-  fout.close();
-  
-  return 0;
-}
 
 // Copyright 2002, softSurfer (www.softsurfer.com)
 // This code may be freely used and modified for any purpose
@@ -92,7 +12,6 @@ int main(int argc, char *argv[])
 // SoftSurfer makes no warranty for this code, and cannot be held
 // liable for any real or imagined damage resulting from its use.
 // Users of this code must verify correctness for their application.
-
 
 // dot product (3D) which allows vector operations in arguments
 #define dot(u,v)   ((u).x * (v).x + (u).y * (v).y + (u).z * (v).z)

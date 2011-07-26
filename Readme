@@ -1,3 +1,5 @@
+This is an implementation of the Douglas–Peucker algorithm for polyline simplification.
+
 The core algorithm was taken from here:
 
 http://www.softsurfer.com/Archive/algorithm_0205/algorithm_0205.htm
