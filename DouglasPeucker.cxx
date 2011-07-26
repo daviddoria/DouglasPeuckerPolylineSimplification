@@ -28,37 +28,43 @@
 //    Output: sV[]= simplified polyline vertices (max is n)
 //    Return: m   = the number of points in sV[]
 
-int poly_simplify( float tol, Point* V, int n, Point* sV )
+std::vector<Point> SimplifyPolyline( float tolerance, std::vector<Point> points )
 {
-    int    i, k, m, pv;            // misc counters
-    float  tol2 = tol * tol;       // tolerance squared
-    Point* vt = new Point[n];      // vertex buffer
+    std::vector<Point> outputPoints;
+    
+    unsigned int    i, k, m, pv;            // misc counters
+    float  tolerance2 = tolerance * tolerance;       // tolerance squared
+    Point* vt = new Point[points.size()];      // vertex buffer
     //int*   mk = new int[n] = {0};  // marker buffer
-    int*   mk = new int[n];  // marker buffer
+    int*   mk = new int[points.size()];  // marker buffer
 
     // STAGE 1.  Vertex Reduction within tolerance of prior vertex cluster
-    vt[0] = V[0];              // start at the beginning
-    for (i=k=1, pv=0; i<n; i++) {
-        if (d2(V[i], V[pv]) < tol2)
+    vt[0] = points[0];              // start at the beginning
+    for (i=k=1, pv=0; i < points.size(); i++) {
+        if (d2(points[i], points[pv]) < tolerance2)
             continue;
-        vt[k++] = V[i];
+        vt[k++] = points[i];
         pv = i;
     }
-    if (pv < n-1)
-        vt[k++] = V[n-1];      // finish at the end
+    if (pv < points.size()-1)
+        vt[k++] = points[points.size()-1];      // finish at the end
 
     // STAGE 2.  Douglas-Peucker polyline simplification
     mk[0] = mk[k-1] = 1;       // mark the first and last vertices
-    simplifyDP( tol, vt, 0, k-1, mk );
+    simplifyDP( tolerance, vt, 0, k-1, mk );
 
     // copy marked vertices to the output simplified polyline
-    for (i=m=0; i<k; i++) {
+    for (i=m=0; i<k; i++) 
+    {
         if (mk[i])
-            sV[m++] = vt[i];
+	{
+            //sV[m++] = vt[i];
+            outputPoints.push_back(vt[i]);
+	}
     }
     //delete vt;
     delete mk;
-    return m;         // m vertices in simplified polyline
+    return outputPoints;
 }
 
 // simplifyDP():

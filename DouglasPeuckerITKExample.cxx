@@ -33,7 +33,10 @@ int main(int argc, char *argv[])
   std::cout << "Approximation tolerance: " << approximationTolerance << std::endl;
   std::cout << "Output: " << outputFileName << std::endl;
   
-  std::vector<Point> points = CreatePointVectorFromPointList(inputFileName);
+  itk::PolyLineParametricPath< 2 >::Pointer path = itk::PolyLineParametricPath< 2 >::New();
+  
+  ReadFileIntoPolyLineParametricPath(inputFileName, path);
+  std::vector<Point> points = CreatePointVectorFromPolyLineParametricPath(path);
   
   // Perform the simplification
   std::vector<Point> simplifiedPoints = SimplifyPolyline(approximationTolerance, points);

@@ -8,12 +8,15 @@
 #include <sstream>
 #include <vector>
 
+#include <vtkSmartPointer.h>
+#include <vtkXMLPolyDataReader.h>
+
 int main(int argc, char *argv[])
 {
   // Verify arguments
   if(argc < 4)
     {
-    std::cerr << "Required: input.txt tolerance output.txt" << std::endl;
+    std::cerr << "Required: input.vtp tolerance output.vtp" << std::endl;
     return -1;
     }
   
@@ -33,14 +36,19 @@ int main(int argc, char *argv[])
   std::cout << "Approximation tolerance: " << approximationTolerance << std::endl;
   std::cout << "Output: " << outputFileName << std::endl;
   
-  std::vector<Point> points = CreatePointVectorFromPointList(inputFileName);
+  vtkSmartPointer<vtkXMLPolyDataReader> reader =
+    vtkSmartPointer<vtkXMLPolyDataReader>::New();
+  reader->SetFileName(inputFileName.c_str());
+  reader->Update();
+  
+  std::vector<Point> points = CreatePointVectorFromPolyData(reader->GetOutput());
   
   // Perform the simplification
   std::vector<Point> simplifiedPoints = SimplifyPolyline(approximationTolerance, points);
 
   std::cout << "There are " << simplifiedPoints.size() << " simplified points." << std::endl;
   
-  WritePointsAsText(simplifiedPoints, outputFileName);
+  WritePointsAsPolyDataLine(simplifiedPoints, outputFileName);
   
   return 0;
 }

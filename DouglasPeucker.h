@@ -3,10 +3,15 @@
 
 #include "point.h"
 
-int poly_simplify( float tol, Point* V, int n, Point* sV );
+#include <vector>
 
-void simplifyDP( float tol, Point* v, int j, int k, int* mk );
+// This function is the only one that should be called by the user
+std::vector<Point> SimplifyPolyline( float tolerance, std::vector<Point> points);
 
+// This function is called from SimplifyPolyline
+void simplifyDP( float tolerance, Point* points, int j, int k, int* mk );
+
+// This structure defines a line segment by its end points
 struct Segment
 {
   Point P0, P1;

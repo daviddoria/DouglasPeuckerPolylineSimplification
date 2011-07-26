@@ -13,7 +13,7 @@ std::vector<Point> CreatePointVectorFromPolyLineParametricPath(itk::PolyLinePara
 
 std::vector<Point> CreatePointVectorFromPointList(const std::string& fileName);
 
-void WritePointsAsText(const std::vector<Point>& points, const std::string& fileName);
+void ReadFileIntoPolyLineParametricPath(const std::string& fileName, itk::PolyLineParametricPath< 2 >::Pointer path);
 
 template <typename T>
 std::vector<T> ArrayToVector(T* inputArray, unsigned int inputLength)
