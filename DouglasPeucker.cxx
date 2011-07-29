@@ -1,131 +1,82 @@
 #include "DouglasPeucker.h"
 
-#include "point.h"
-#include "vector.h"
+#include <vtkSmartPointer.h>
+#include <vtkIdList.h>
+#include <vtkPolyData.h>
+#include <vtkCellArray.h>
 
-#include <fstream>
-#include <sstream>
-
-// Copyright 2002, softSurfer (www.softsurfer.com)
-// This code may be freely used and modified for any purpose
-// providing that this copyright notice is included with it.
-// SoftSurfer makes no warranty for this code, and cannot be held
-// liable for any real or imagined damage resulting from its use.
-// Users of this code must verify correctness for their application.
-
-// dot product (3D) which allows vector operations in arguments
-#define dot(u,v)   ((u).x * (v).x + (u).y * (v).y + (u).z * (v).z)
-#define norm2(v)   dot(v,v)        // norm2 = squared length of vector
-#define norm(v)    sqrt(norm2(v))  // norm = length of vector
-#define d2(u,v)    norm2(u-v)      // distance squared = norm2 of difference
-#define d(u,v)     norm(u-v)       // distance = norm of difference
-
-
-// poly_simplify():
-//    Input:  tol = approximation tolerance
-//            V[] = polyline array of vertex points 
-//            n   = the number of points in V[]
-//    Output: sV[]= simplified polyline vertices (max is n)
-//    Return: m   = the number of points in sV[]
-
-std::vector<Point> SimplifyPolyline( float tolerance, std::vector<Point> points )
+void SimplifyPolyline( vtkPolyData* input, float tolerance, vtkPolyData* output)
 {
-    std::vector<Point> outputPoints;
+  typedef boost::geometry::model::d2::point_xy<double> xy;
+  boost::geometry::model::linestring<xy> line;
+  
+  polydata->GetLines()->InitTraversal();
+  vtkSmartPointer<vtkIdList> idList = vtkSmartPointer<vtkIdList>::New();
+  while(polydata->GetLines()->GetNextCell(idList))
+    {
+    double p[3];
+    polydata->GetPoint(idList->GetId(0), p);
+    line.push_back(xy(p[0], p[1]));
+    }
     
-    unsigned int    i, k, m, pv;            // misc counters
-    float  tolerance2 = tolerance * tolerance;       // tolerance squared
-    Point* vt = new Point[points.size()];      // vertex buffer
-    //int*   mk = new int[n] = {0};  // marker buffer
-    int*   mk = new int[points.size()];  // marker buffer
-
-    // STAGE 1.  Vertex Reduction within tolerance of prior vertex cluster
-    vt[0] = points[0];              // start at the beginning
-    for (i=k=1, pv=0; i < points.size(); i++) {
-        if (d2(points[i], points[pv]) < tolerance2)
-            continue;
-        vt[k++] = points[i];
-        pv = i;
-    }
-    if (pv < points.size()-1)
-        vt[k++] = points[points.size()-1];      // finish at the end
-
-    // STAGE 2.  Douglas-Peucker polyline simplification
-    mk[0] = mk[k-1] = 1;       // mark the first and last vertices
-    simplifyDP( tolerance, vt, 0, k-1, mk );
-
-    // copy marked vertices to the output simplified polyline
-    for (i=m=0; i<k; i++) 
+  // Simplify the contour
+  boost::geometry::model::linestring<xy> simplified;
+  boost::geometry::simplify(line, simplified, tolerance);
+  
+  // Create a vtkPoints object and store the simplified points in it
+  vtkSmartPointer<vtkPoints> points = vtkSmartPointer<vtkPoints>::New();
+   
+  for(unsigned int i = 0; i < inputPoints.size(); ++i)
     {
-        if (mk[i])
-	{
-            //sV[m++] = vt[i];
-            outputPoints.push_back(vt[i]);
-	}
+    double p[3] = {line[i].x, line[i].y, 0.0};
+    points->InsertNextPoint(p);
     }
-    //delete vt;
-    delete mk;
-    return outputPoints;
+    
+  // Create a cell array to store the lines in and add the lines to it
+  vtkSmartPointer<vtkCellArray> lines = vtkSmartPointer<vtkCellArray>::New();
+ 
+  for(unsigned int i = 0; i < points->GetNumberOfPoints(); i++)
+    {
+    //Create the first line (between Origin and P0)
+    vtkSmartPointer<vtkLine> line =
+      vtkSmartPointer<vtkLine>::New();
+    line->GetPointIds()->SetId(0,i);
+    line->GetPointIds()->SetId(1,i+1);
+    lines->InsertNextCell(line);
+    }
+ 
+  // Store everything in the output
+  output->SetPoints(points);
+  output->SetLines(lines);
+      
 }
 
-// simplifyDP():
-//  This is the Douglas-Peucker recursive simplification routine
-//  It just marks vertices that are part of the simplified polyline
-//  for approximating the polyline subchain v[j] to v[k].
-//    Input:  tol = approximation tolerance
-//            v[] = polyline array of vertex points 
-//            j,k = indices for the subchain v[j] to v[k]
-//    Output: mk[] = array of markers matching vertex array v[]
-
-void simplifyDP( float tol, Point* v, int j, int k, int* mk )
+void SimplifyPolyline( itk::PolyLineParametricPath< 2 >::Pointer input, float tolerance, itk::PolyLineParametricPath< 2 >::Pointer output)
 {
-    if (k <= j+1) // there is nothing to simplify
-        return;
+  typedef boost::geometry::model::d2::point_xy<double> xy;
+  boost::geometry::model::linestring<xy> line;
 
-    // check for adequate approximation by segment S from v[j] to v[k]
-    int     maxi = j;          // index of vertex farthest from S
-    float   maxd2 = 0;         // distance squared of farthest vertex
-    float   tol2 = tol * tol;  // tolerance squared
-    Segment S = {v[j], v[k]};  // segment from v[j] to v[k]
-    Vector  u = S.P1 - S.P0;   // segment direction vector
-    double  cu = dot(u,u);     // segment length squared
+  const itk::PolyLineParametricPath< 2 >::VertexListType * vertexList = input->GetVertexList ();
 
-    // test each vertex v[i] for max distance from S
-    // compute using the Feb 2001 Algorithm's dist_Point_to_Segment()
-    // Note: this works in any dimension (2D, 3D, ...)
-    Vector  w;
-    Point   Pb;                // base of perpendicular from v[i] to S
-    double  b, cw, dv2;        // dv2 = distance v[i] to S squared
-
-    for (int i=j+1; i<k; i++)
+  for(unsigned int i = 0; i < vertexList->Size(); ++i)
     {
-        // compute distance squared
-        w = v[i] - S.P0;
-        cw = dot(w,u);
-        if ( cw <= 0 )
-            dv2 = d2(v[i], S.P0);
-        else if ( cu <= cw )
-            dv2 = d2(v[i], S.P1);
-        else {
-            b = cw / cu;
-            Pb = S.P0 + b * u;
-            dv2 = d2(v[i], Pb);
-        }
-        // test with current max distance squared
-        if (dv2 <= maxd2) 
-            continue;
-        // v[i] is a new max vertex
-        maxi = i;
-        maxd2 = dv2;
-    } 
-    if (maxd2 > tol2)        // error is worse than the tolerance
-    {
-        // split the polyline at the farthest vertex from S
-        mk[maxi] = 1;      // mark v[maxi] for the simplified polyline
-        // recursively simplify the two subpolylines at v[maxi]
-        simplifyDP( tol, v, j, maxi, mk );  // polyline v[j] to v[maxi]
-        simplifyDP( tol, v, maxi, k, mk );  // polyline v[maxi] to v[k]
+    line.push_back(xy(vertexList->GetElement(i)[0], vertexList->GetElement(i)[1]));
     }
-    // else the approximation is OK, so ignore intermediate vertices
-    return;
-}
 
+  // Simplify the contour
+  boost::geometry::model::linestring<xy> simplified;
+  boost::geometry::simplify(line, simplified, tolerance);
+  
+  output->Initialize();
+  typedef itk::PolyLineParametricPath< 2 >::ContinuousIndexType    ContinuousIndexType;
+  
+  for(unsigned int i = 0; i < points.size(); ++i)
+    {
+    ContinuousIndexType cindex;
+    cindex[0] = line[i].x;
+    cindex[1] = line[i].y;
+    
+    output->AddVertex( cindex );
+    }  
+    
+}

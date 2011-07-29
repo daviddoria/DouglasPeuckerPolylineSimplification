@@ -15,14 +15,19 @@ INCLUDE(${ITK_USE_FILE})
 FIND_PACKAGE(VTK REQUIRED)
 INCLUDE(${VTK_USE_FILE})
 
-ADD_EXECUTABLE(DouglasPeucker DouglasPeuckerExample.cxx DouglasPeucker.cxx ContourReaders.cpp ContourWriters.cpp point.cpp vector.cpp)
-TARGET_LINK_LIBRARIES(DouglasPeucker ${ITK_LIBRARIES} ${VTK_LIBRARIES})
-set_target_properties(DouglasPeucker PROPERTIES COMPILE_DEFINITIONS "${DEFINITIONS}")
-INSTALL( TARGETS DouglasPeucker
-  RUNTIME DESTINATION ${INSTALL_DIR} )
+FIND_PACKAGE(Boost 1.38 COMPONENTS required)
+INCLUDE_DIRECTORIES(${INCLUDE_DIRECTORIES} ${Boost_INCLUDE_DIRS})
 
-ADD_EXECUTABLE(DouglasPeuckerVTKExample DouglasPeuckerVTKExample.cxx DouglasPeucker.cxx ContourReaders.cpp ContourWriters.cpp point.cpp vector.cpp)
-TARGET_LINK_LIBRARIES(DouglasPeuckerVTKExample ${ITK_LIBRARIES} ${VTK_LIBRARIES})
+## VTK ##
+ADD_EXECUTABLE(DouglasPeuckerVTKExample DouglasPeuckerVTKExample.cxx DouglasPeuckerVTK.cxx)
+TARGET_LINK_LIBRARIES(DouglasPeuckerVTKExample ${VTK_LIBRARIES})
 
-ADD_EXECUTABLE(DouglasPeuckerITKExample DouglasPeuckerITKExample.cxx DouglasPeucker.cxx ContourReaders.cpp ContourWriters.cpp point.cpp vector.cpp)
-TARGET_LINK_LIBRARIES(DouglasPeuckerITKExample ${ITK_LIBRARIES} ${VTK_LIBRARIES})
+ADD_EXECUTABLE(DouglasPeuckerVTKDemo DouglasPeuckerVTKDemo.cxx DouglasPeuckerVTK.cxx)
+TARGET_LINK_LIBRARIES(DouglasPeuckerVTKDemo ${VTK_LIBRARIES})
+
+## ITK ##
+ADD_EXECUTABLE(DouglasPeuckerITKExample DouglasPeuckerITKExample.cxx DouglasPeuckerITK.cxx PointReaderITK.cxx)
+TARGET_LINK_LIBRARIES(DouglasPeuckerITKExample ${ITK_LIBRARIES})
+
+ADD_EXECUTABLE(DouglasPeuckerITKDemo DouglasPeuckerITKDemo.cxx DouglasPeuckerITK.cxx)
+TARGET_LINK_LIBRARIES(DouglasPeuckerITKDemo ${ITK_LIBRARIES})

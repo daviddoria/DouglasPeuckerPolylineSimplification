@@ -1,12 +1,6 @@
 #include "DouglasPeucker.h"
-#include "point.h"
-#include "ContourReaders.h"
-#include "ContourWriters.h"
 
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <vector>
+#include "PointReaderITK.h"
 
 int main(int argc, char *argv[])
 {
@@ -34,16 +28,16 @@ int main(int argc, char *argv[])
   std::cout << "Output: " << outputFileName << std::endl;
   
   itk::PolyLineParametricPath< 2 >::Pointer path = itk::PolyLineParametricPath< 2 >::New();
-  
   ReadFileIntoPolyLineParametricPath(inputFileName, path);
-  std::vector<Point> points = CreatePointVectorFromPolyLineParametricPath(path);
+  std::cout << "There are " << path->GetVertexList()->Size() << " points in the input path." << std::endl;
   
+  itk::PolyLineParametricPath< 2 >::Pointer simplifiedPath = itk::PolyLineParametricPath< 2 >::New();
   // Perform the simplification
-  std::vector<Point> simplifiedPoints = SimplifyPolyline(approximationTolerance, points);
+  SimplifyPolyline(path, approximationTolerance, simplifiedPath);
 
-  std::cout << "There are " << simplifiedPoints.size() << " simplified points." << std::endl;
+  std::cout << "There are " << simplifiedPath->GetVertexList()->Size() << " points on the simplified path." << std::endl;
   
-  WritePointsAsText(simplifiedPoints, outputFileName);
+  //WritePointsAsText(simplifiedPoints, outputFileName);
   
   return 0;
 }

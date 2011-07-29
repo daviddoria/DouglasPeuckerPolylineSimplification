@@ -1,15 +1,14 @@
 #include "DouglasPeucker.h"
-#include "point.h"
-#include "ContourReaders.h"
-#include "ContourWriters.h"
 
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <vector>
 
 #include <vtkSmartPointer.h>
 #include <vtkXMLPolyDataReader.h>
+#include <vtkXMLPolyDataWriter.h>
+
+void CreateContour(vtkPolyData* contour);
 
 int main(int argc, char *argv[])
 {
@@ -36,19 +35,27 @@ int main(int argc, char *argv[])
   std::cout << "Approximation tolerance: " << approximationTolerance << std::endl;
   std::cout << "Output: " << outputFileName << std::endl;
   
-  vtkSmartPointer<vtkXMLPolyDataReader> reader =
-    vtkSmartPointer<vtkXMLPolyDataReader>::New();
+  vtkSmartPointer<vtkXMLPolyDataReader> reader = vtkSmartPointer<vtkXMLPolyDataReader>::New();
   reader->SetFileName(inputFileName.c_str());
   reader->Update();
   
-  std::vector<Point> points = CreatePointVectorFromPolyData(reader->GetOutput());
+  std::cout << "There are " << reader->GetOutput()->GetNumberOfPoints() << " points in the input path." << std::endl;
   
   // Perform the simplification
-  std::vector<Point> simplifiedPoints = SimplifyPolyline(approximationTolerance, points);
+  vtkSmartPointer<vtkPolyData> simplifiedPath = vtkSmartPointer<vtkPolyData>::New();
+  SimplifyPolyline(reader->GetOutput(), approximationTolerance, simplifiedPath);
 
-  std::cout << "There are " << simplifiedPoints.size() << " simplified points." << std::endl;
+  std::cout << "There are " << simplifiedPath->GetNumberOfPoints() << " on the simplified path." << std::endl;
   
-  WritePointsAsPolyDataLine(simplifiedPoints, outputFileName);
+  vtkSmartPointer<vtkXMLPolyDataWriter> writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
+  writer->SetFileName(outputFileName.c_str());
+  writer->SetInputConnection(simplifiedPath->GetProducerPort());
+  writer->Write();
   
   return 0;
+}
+
+void CreateContour(vtkPolyData* contour)
+{
+  
 }
