@@ -1,4 +1,4 @@
-#include "DouglasPeucker.h"
+#include "DouglasPeuckerVTK.h"
 
 #include <fstream>
 #include <iostream>

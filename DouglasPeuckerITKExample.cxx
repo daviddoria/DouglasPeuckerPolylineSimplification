@@ -1,4 +1,4 @@
-#include "DouglasPeucker.h"
+#include "DouglasPeuckerITK.h"
 
 #include "PointReaderITK.h"
 

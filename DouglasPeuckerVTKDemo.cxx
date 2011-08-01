@@ -1,4 +1,4 @@
-#include "DouglasPeucker.h"
+#include "DouglasPeuckerVTK.h"
 
 #include <vtkCellArray.h>
 #include <vtkLine.h>
