@@ -31,3 +31,6 @@ TARGET_LINK_LIBRARIES(DouglasPeuckerITKExample ${ITK_LIBRARIES})
 
 ADD_EXECUTABLE(DouglasPeuckerITKDemo DouglasPeuckerITKDemo.cxx DouglasPeuckerITK.cxx)
 TARGET_LINK_LIBRARIES(DouglasPeuckerITKDemo ${ITK_LIBRARIES})
+
+ADD_EXECUTABLE(DouglasPeuckerITKDemoSimple DouglasPeuckerITKDemoSimple.cxx DouglasPeuckerITK.cxx)
+TARGET_LINK_LIBRARIES(DouglasPeuckerITKDemoSimple ${ITK_LIBRARIES})
