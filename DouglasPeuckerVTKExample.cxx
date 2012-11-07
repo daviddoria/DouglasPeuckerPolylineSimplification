@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
   if(argc < 4)
     {
     std::cerr << "Required: input.vtp tolerance output.vtp" << std::endl;
-    return -1;
+    return EXIT_FAILURE;
     }
   
   // Parse arguments
@@ -67,10 +67,10 @@ int main(int argc, char *argv[])
   
   vtkSmartPointer<vtkXMLPolyDataWriter> writer = vtkSmartPointer<vtkXMLPolyDataWriter>::New();
   writer->SetFileName(outputFileName.c_str());
-  writer->SetInputConnection(simplifiedPath->GetProducerPort());
+  writer->SetInputData(simplifiedPath);
   writer->Write();
   
-  return 0;
+  return EXIT_SUCCESS;
 }
 
 void CreateContour(vtkPolyData* contour)
